@@ -1,4 +1,58 @@
-### how to run project
-`npm start`
+# DevineShop
 
-#### Note: All template must paste into Public folder
+An oversimplified DivineShop web clone
+
+## 🚀 About This Project
+
+A brief description of your website. Explain its purpose, main features, and why it was created.
+
+## 📸 Screenshots
+
+- TODO: Include screenshots to showcase website's UI.
+
+## 🛠️ Technologies Used
+
+Frontend: ASPNET Core MVC, HTML, CSS, JavaScript
+
+Backend: ASPNET Core (C#)
+
+Database: SQLServer
+
+## 📦 Installation
+
+Clone the repository:
+
+git clone https://github.com/dinhhuy-project/DivineShop.git
+cd DivineShop
+
+Start the development server:
+
+```sh
+npm start  # or yarn start
+```
+
+## 📜 Usage
+
+- TODO: Explain how users can interact with the website, including key features and navigation instructions.
+
+## 🏗️ Deployment
+
+- No deployment method at the moment
+
+## 👥 Contributing
+
+Contributions are welcome! Follow these steps to contribute:
+
+Fork the repository
+
+Create a new branch: `git checkout -b feature-name`
+
+Commit your changes: `git commit -m 'Add new feature'`
+
+Push to the branch: `git push origin feature-name`
+
+Submit a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.

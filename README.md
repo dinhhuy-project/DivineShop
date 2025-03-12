@@ -2,33 +2,29 @@
 
 An oversimplified DivineShop web clone
 
-## 🚀 About This Project
-
-A brief description of your website. Explain its purpose, main features, and why it was created.
-
 ## 📸 Screenshots
 
 - TODO: Include screenshots to showcase website's UI.
 
 ## 🛠️ Technologies Used
 
-Frontend: ASPNET Core MVC, HTML, CSS, JavaScript
-
-Backend: ASPNET Core (C#)
-
-Database: SQLServer
+- Frontend: ASPNET Core MVC, HTML, CSS, JavaScript
+- Backend: ASPNET Core (C#)
+- Database: SQLServer
 
 ## 📦 Installation
 
 Clone the repository:
 
+```sh
 git clone https://github.com/dinhhuy-project/DivineShop.git
 cd DivineShop
+```
 
 Start the development server:
 
 ```sh
-npm start  # or yarn start
+dotnet run
 ```
 
 ## 📜 Usage
@@ -43,15 +39,11 @@ npm start  # or yarn start
 
 Contributions are welcome! Follow these steps to contribute:
 
-Fork the repository
-
-Create a new branch: `git checkout -b feature-name`
-
-Commit your changes: `git commit -m 'Add new feature'`
-
-Push to the branch: `git push origin feature-name`
-
-Submit a Pull Request
+- Fork the repository
+- Create a new branch: `git checkout -b feature-name`
+- Commit your changes: `git commit -m 'Add new feature'`
+- Push to the branch: `git push origin feature-name`
+- Submit a Pull Request
 
 ## 📄 License
 

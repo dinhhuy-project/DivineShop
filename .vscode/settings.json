@@ -1,8 +1,0 @@
-{
-  "editor.tabSize": 4,
-  "files.exclude": {
-    "**/bin": true,
-    "**/obj": true
-  },
-  "csharp.format.enable": true
-}

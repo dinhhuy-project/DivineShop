@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+  }
+
+  .no-wrap {
+    white-space: nowrap;       /* Không xuống dòng */
+    overflow: hidden;          /* Ẩn phần tràn */
+    text-overflow: ellipsis;   /* Hiển thị dấu ba chấm */
+    width: 155px;              /* Giới hạn chiều rộng */
+  }
+
+}

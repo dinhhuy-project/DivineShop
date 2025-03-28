@@ -82,7 +82,6 @@ export default function CustomerActivity({ activities }: CustomerActivityProps) 
             </li>
           ) : (
             activities.map((activity) => (
-              console.log(activity.customer),
               <li key={activity.id} className="py-3 flex items-start">
                 <div className={`flex-shrink-0 h-8 w-8 rounded-full ${getActivityColor(activity.type)} flex items-center justify-center`}>
                   {getActivityIcon(activity.type)}

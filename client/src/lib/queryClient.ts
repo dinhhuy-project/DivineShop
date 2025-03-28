@@ -18,7 +18,6 @@ export async function apiRequest({
 }) {
   try {
     const url = endpoint.startsWith('/') ? `/api${endpoint}` : `/api/${endpoint}`;
-    console.log('url', url);
     const res = await fetch(url, {
       method,
       headers: data ? { "Content-Type": "application/json" } : {},

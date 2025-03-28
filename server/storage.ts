@@ -7,6 +7,54 @@ import {
   users, User, InsertUser,
   OrderWithDetails, DashboardMetrics, ProductCategoryStat, PopularProduct
 } from "@shared/schema";
+import { MongoClient, ServerApiVersion } from 'mongodb';
+import { config } from 'dotenv';
+// Load environment variables from .env file
+config();
+
+if (!process.env.MONGODB_URL) {
+  throw new Error("MONGODB_URL, ensure the database is provisioned");
+}
+
+let uri = process.env.MONGODB_URL;
+  
+// Create a MongoClient with a MongoClientOptions object to set the Stable API version
+const client = new MongoClient(uri, {
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true,
+  }
+});
+
+// Connect to MongoDB when the program starts
+(async () => {
+  try {
+    console.log("Connecting to MongoDB...");
+    await client.connect();
+    console.log("Connected to MongoDB!");
+  } catch (error) {
+    console.error("Failed to connect to MongoDB:", error);
+    process.exit(1); // Exit the program if the connection fails
+  }
+})();
+
+// Disconnect from MongoDB when the program closes
+process.on("SIGINT", async () => {
+  console.log("Closing MongoDB connection...");
+  await client.close();
+  console.log("MongoDB connection closed. Exiting program.");
+  process.exit(0);
+});
+
+process.on("SIGTERM", async () => {
+  console.log("Closing MongoDB connection...");
+  await client.close();
+  console.log("MongoDB connection closed. Exiting program.");
+  process.exit(0);
+});
+
+const db = client.db("DivineShopCRM");
 
 export interface IStorage {
   // Customer operations
@@ -50,206 +98,201 @@ export interface IStorage {
   createUser(user: InsertUser): Promise<User>;
 }
 
-export class MemStorage implements IStorage {
-  private customers: Map<number, Customer>;
-  private products: Map<number, Product>;
-  private orders: Map<number, Order>;
-  private orderItems: Map<number, OrderItem>;
-  private activities: Map<number, Activity>;
-  private users: Map<number, User>;
-  
-  private customerCounter: number;
-  private productCounter: number;
-  private orderCounter: number;
-  private orderItemCounter: number;
-  private activityCounter: number;
-  private userCounter: number;
-
-  constructor() {
-    this.customers = new Map();
-    this.products = new Map();
-    this.orders = new Map();
-    this.orderItems = new Map();
-    this.activities = new Map();
-    this.users = new Map();
-    
-    this.customerCounter = 1;
-    this.productCounter = 1;
-    this.orderCounter = 1;
-    this.orderItemCounter = 1;
-    this.activityCounter = 1;
-    this.userCounter = 1;
-
-    // Initialize with sample admin user
-    this.createUser({
-      username: 'admin',
-      password: 'admin123', // This is just for demo
-      name: 'Alex Johnson',
-      role: 'Administrator',
-      avatar: ''
-    });
-  }
+export class MongoStorage implements IStorage {
+  private db = db;
 
   // Customer operations
   async getCustomers(): Promise<Customer[]> {
-    return Array.from(this.customers.values());
+    return await this.db.collection<Customer>("customers").find().toArray();
   }
 
   async getCustomer(id: number): Promise<Customer | undefined> {
-    return this.customers.get(id);
+    const result = await this.db.collection<Customer>("customers").findOne({ id });
+    return result || undefined;
   }
 
   async createCustomer(customer: InsertCustomer): Promise<Customer> {
-    const id = this.customerCounter++;
-    const newCustomer: Customer = {
-      id,
-      name: customer.name,
-      email: customer.email,
+    const newCustomer = {
+      ...customer,
+      id: Date.now(),
+      createdAt: new Date(),
       phone: customer.phone ?? null,
-      address: customer.address ?? null,
-      createdAt: new Date()
+      address: customer.address ?? null
     };
-    this.customers.set(id, newCustomer);
+    await this.db.collection("customers").insertOne(newCustomer);
     return newCustomer;
   }
 
   async updateCustomer(id: number, customer: Partial<InsertCustomer>): Promise<Customer | undefined> {
-    const existingCustomer = this.customers.get(id);
-    if (!existingCustomer) return undefined;
-    
-    const updatedCustomer = {
-      ...existingCustomer,
-      ...customer
-    };
-    this.customers.set(id, updatedCustomer);
-    return updatedCustomer;
+    const result = await this.db.collection("customers").findOneAndUpdate(
+      { id },
+      { $set: customer },
+      { returnDocument: "after" }
+    );
+    return result ? result.value : undefined;
   }
 
   async deleteCustomer(id: number): Promise<boolean> {
-    return this.customers.delete(id);
+    const result = await this.db.collection("customers").deleteOne({ id });
+    return result.deletedCount > 0;
   }
 
   async searchCustomers(query: string): Promise<Customer[]> {
-    query = query.toLowerCase();
-    return Array.from(this.customers.values()).filter(customer => 
-      customer.name.toLowerCase().includes(query) || 
-      customer.email.toLowerCase().includes(query) ||
-      (customer.phone && customer.phone.includes(query))
-    );
+    return await this.db.collection<Customer>("customers").find({
+      $or: [
+        { name: { $regex: query, $options: "i" } },
+        { email: { $regex: query, $options: "i" } },
+        { phone: { $regex: query, $options: "i" } }
+      ]
+    }).toArray();
   }
 
   // Product operations
   async getProducts(): Promise<Product[]> {
-    return Array.from(this.products.values());
+    return await this.db.collection<Product>("products").find().toArray();
   }
 
   async getProduct(id: number): Promise<Product | undefined> {
-    return this.products.get(id);
+    const result = await this.db.collection("products").findOne({ id });
+    return result ? {
+      id: result.id,
+      name: result.name,
+      createdAt: new Date(result.createdAt),
+      description: result.description ?? null,
+      category: result.category as "game" | "software" | "utility",
+      price: result.price,
+      stock: result.stock,
+      image: result.image ?? null
+    } as Product : undefined;
   }
 
   async createProduct(product: InsertProduct): Promise<Product> {
-    const id = this.productCounter++;
-    const newProduct: Product = {
-      id,
-      name: product.name,
+    const newProduct = {
+      ...product,
+      id: Date.now(),
+      createdAt: new Date(),
       description: product.description ?? null,
-      category: product.category,
-      price: product.price,
       stock: product.stock ?? 0,
-      image: product.image ?? null,
-      createdAt: new Date()
+      image: product.image ?? null
     };
-    this.products.set(id, newProduct);
+    await this.db.collection("products").insertOne(newProduct);
     return newProduct;
   }
 
   async updateProduct(id: number, product: Partial<InsertProduct>): Promise<Product | undefined> {
-    const existingProduct = this.products.get(id);
-    if (!existingProduct) return undefined;
-    
-    const updatedProduct = {
-      ...existingProduct,
-      ...product
-    };
-    this.products.set(id, updatedProduct);
-    return updatedProduct;
+    const result = await this.db.collection("products").findOneAndUpdate(
+      { id },
+      { $set: product },
+      { returnDocument: "after" }
+    );
+    return result ? result.value : undefined;
   }
 
   async deleteProduct(id: number): Promise<boolean> {
-    return this.products.delete(id);
+    const result = await this.db.collection("products").deleteOne({ id });
+    return result.deletedCount > 0;
   }
 
   async searchProducts(query: string): Promise<Product[]> {
-    query = query.toLowerCase();
-    return Array.from(this.products.values()).filter(product => 
-      product.name.toLowerCase().includes(query) || 
-      (product.description && product.description.toLowerCase().includes(query))
-    );
+    return await this.db.collection<Product>("products").find({
+      $or: [
+        { name: { $regex: query, $options: "i" } },
+        { description: { $regex: query, $options: "i" } }
+      ]
+    }).toArray();
   }
 
   async getProductsByCategory(category: string): Promise<Product[]> {
-    return Array.from(this.products.values()).filter(product => 
-      product.category === category
-    );
+    return (await this.db.collection("products").find({ category }).toArray()).map(doc => ({
+      id: doc.id,
+      name: doc.name,
+      description: doc.description ?? null,
+      category: doc.category as "game" | "software" | "utility",
+      price: doc.price,
+      stock: doc.stock,
+      image: doc.image ?? null,
+      createdAt: new Date(doc.createdAt)
+    }));
   }
 
   // Order operations
   async getOrders(): Promise<Order[]> {
-    return Array.from(this.orders.values());
+    return await this.db.collection<Order>("orders").find().map(doc => ({
+      id: doc.id,
+      status: doc.status as "pending" | "processing" | "completed" | "failed" | "cancelled",
+      customerId: doc.customerId,
+      orderDate: new Date(doc.orderDate),
+      total: doc.total
+    })).toArray();
   }
 
   async getOrder(id: number): Promise<Order | undefined> {
-    return this.orders.get(id);
+    const result = await this.db.collection("orders").findOne({ id });
+    return result ? {
+      id: result.id,
+      customerId: result.customerId,
+      orderDate: new Date(result.orderDate),
+      status: result.status as "pending" | "processing" | "completed" | "failed" | "cancelled",
+      total: result.total
+    } : undefined;
   }
 
   async getOrderWithDetails(id: number): Promise<OrderWithDetails | undefined> {
-    const order = this.orders.get(id);
+    const order = await this.getOrder(id);
     if (!order) return undefined;
 
-    const customer = this.customers.get(order.customerId);
-    if (!customer) return undefined;
+    const customer = await this.getCustomer(order.customerId);
+    const items = await this.db.collection("orderItems").find({ orderId: id }).toArray();
+    const detailedItems = await Promise.all(
+      items.map(async (item) => {
+        const product = await this.getProduct(item.productId);
+        return {
+          id: item.id,
+          orderId: item.orderId,
+          price: item.price,
+          productId: item.productId,
+          quantity: item.quantity,
+          product: product || {
+            id: 0,
+            name: "Unknown",
+            createdAt: new Date(),
+            description: null,
+            category: "utility",
+            price: 0,
+            stock: 0,
+            image: null
+          }
+        };
+      })
+    );
 
-    const items = Array.from(this.orderItems.values())
-      .filter(item => item.orderId === id)
-      .map(item => {
-        const product = this.products.get(item.productId);
-        return { ...item, product: product! };
-      });
-
-    return {
-      ...order,
-      customer,
-      items
+    return { 
+      ...order, 
+      customer: customer || { id: 0, name: "Unknown", email: "", phone: null, address: null, createdAt: new Date() }, 
+      items: detailedItems 
     };
   }
 
   async createOrder(order: InsertOrder, items: InsertOrderItem[]): Promise<Order> {
-    const id = this.orderCounter++;
-    const newOrder: Order = {
-      id,
-      customerId: order.customerId,
-      total: order.total,
-      status: order.status || 'pending',
-      orderDate: new Date()
+    const newOrder = {
+      ...order,
+      id: Date.now(),
+      orderDate: new Date(),
+      status: order.status || "pending" // Ensure status is always assigned
     };
-    this.orders.set(id, newOrder);
+    await this.db.collection("orders").insertOne(newOrder);
 
-    // Create order items
     for (const item of items) {
-      const itemId = this.orderItemCounter++;
-      const newItem: OrderItem = {
+      await this.db.collection("orderItems").insertOne({
         ...item,
-        id: itemId,
-        orderId: id
-      };
-      this.orderItems.set(itemId, newItem);
+        id: Date.now(),
+        orderId: newOrder.id
+      });
 
       // Update product stock
-      const product = this.products.get(item.productId);
+      const product = await this.getProduct(item.productId);
       if (product) {
-        this.updateProduct(item.productId, {
-          stock: product.stock - item.quantity
-        });
+        await this.updateProduct(item.productId, { stock: product.stock - item.quantity });
       }
     }
 
@@ -257,94 +300,106 @@ export class MemStorage implements IStorage {
   }
 
   async updateOrderStatus(id: number, status: string): Promise<Order | undefined> {
-    const order = this.orders.get(id);
-    if (!order) return undefined;
-    
-    const updatedOrder = {
-      ...order,
-      status: status as any
-    };
-    this.orders.set(id, updatedOrder);
-    return updatedOrder;
+    const result = await this.db.collection("orders").findOneAndUpdate(
+      { id },
+      { $set: { status } },
+      { returnDocument: "after" }
+    );
+    return result ? result.value : undefined;
   }
 
   async getRecentOrders(limit: number): Promise<OrderWithDetails[]> {
-    const allOrders = Array.from(this.orders.values())
-      .sort((a, b) => b.orderDate.getTime() - a.orderDate.getTime())
-      .slice(0, limit);
-    
+    const orders = await this.db.collection("orders").find()
+      .sort({ orderDate: -1 })
+      .limit(limit)
+      .toArray();
+
     return Promise.all(
-      allOrders.map(async order => this.getOrderWithDetails(order.id) as Promise<OrderWithDetails>)
+      orders.map(async (order) => this.getOrderWithDetails(order.id) as Promise<OrderWithDetails>)
     );
   }
 
   // Activity operations
   async getActivities(): Promise<Activity[]> {
-    return Array.from(this.activities.values());
+    return await this.db.collection<Activity>("activities").find().map(doc => ({
+      id: doc.id,
+      type: doc.type,
+      customerId: doc.customerId,
+      description: doc.description,
+      timestamp: new Date(doc.timestamp),
+      metadata: doc.metadata ?? null
+    })).toArray();
   }
 
   async createActivity(activity: InsertActivity): Promise<Activity> {
-    const id = this.activityCounter++;
-    const newActivity: Activity = {
-      id,
-      type: activity.type,
-      description: activity.description,
-      customerId: activity.customerId,
-      metadata: activity.metadata ?? null,
-      timestamp: new Date()
+    const newActivity = {
+      ...activity,
+      id: Date.now(),
+      timestamp: new Date(),
+      metadata: activity.metadata ?? null
     };
-    this.activities.set(id, newActivity);
+    await this.db.collection("activities").insertOne(newActivity);
     return newActivity;
   }
 
   async getRecentActivities(limit: number): Promise<(Activity & { customer: Customer })[]> {
-    const allActivities = Array.from(this.activities.values())
-      .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
-      .slice(0, limit);
-    
-    return allActivities.map(activity => {
-      const customer = this.customers.get(activity.customerId);
-      return {
-        ...activity,
-        customer: customer!
-      };
-    });
+    const activities = await this.db.collection("activities").find()
+      .sort({ timestamp: -1 })
+      .limit(limit)
+      .toArray();
+
+    return Promise.all(
+      activities.map(async (activity) => {
+        const customer = await this.getCustomer(activity.customerId);
+        return {
+          id: activity.id, // Ensure the id property is included
+          customerId: activity.customerId,
+          type: activity.type,
+          description: activity.description,
+          timestamp: activity.timestamp,
+          metadata: activity.metadata,
+          customer: customer || {
+            id: 0,
+            name: "Unknown",
+            email: "",
+            phone: null,
+            address: null,
+            createdAt: new Date()
+          }
+        };
+      })
+    );
   }
 
   // Dashboard metrics
   async getDashboardMetrics(): Promise<DashboardMetrics> {
-    const allOrders = Array.from(this.orders.values());
-    const completedOrders = allOrders.filter(order => order.status === 'completed');
-    const pendingOrders = allOrders.filter(order => order.status === 'pending');
-    
+    const orders = await this.getOrders();
+    const completedOrders = orders.filter(order => order.status === 'completed');
+    const pendingOrders = orders.filter(order => order.status === 'pending');
     const totalSales = completedOrders.reduce((sum, order) => sum + order.total, 0);
-    
+
     const lastMonthDate = new Date();
     lastMonthDate.setMonth(lastMonthDate.getMonth() - 1);
-    
-    const newCustomers = Array.from(this.customers.values())
-      .filter(customer => customer.createdAt > lastMonthDate)
-      .length;
-    
-    // Calculate top product
+
+    const newCustomers = (await this.getCustomers()).filter(customer => customer.createdAt > lastMonthDate).length;
+
     const productSales = new Map<number, number>();
-    for (const item of Array.from(this.orderItems.values())) {
-      const currentCount = productSales.get(item.productId) || 0;
-      productSales.set(item.productId, currentCount + item.quantity);
+    const orderItems = await this.db.collection("orderItems").find().toArray();
+    for (const item of orderItems) {
+      productSales.set(item.productId, (productSales.get(item.productId) || 0) + item.quantity);
     }
-    
+
     let topProductId = 0;
     let maxSales = 0;
-    
     for (const [productId, sales] of Array.from(productSales.entries())) {
       if (sales > maxSales) {
         maxSales = sales;
         topProductId = productId;
       }
     }
-    
-    const topProduct = this.products.get(topProductId);
-    
+
+    const topProduct = await this.getProduct(topProductId);
+
     return {
       totalSales,
       newCustomers,
@@ -357,9 +412,9 @@ export class MemStorage implements IStorage {
   }
 
   async getProductCategoryStats(): Promise<ProductCategoryStat[]> {
-    const allProducts = Array.from(this.products.values());
-    const totalProducts = allProducts.length;
-    
+    const products = await this.getProducts();
+    const totalProducts = products.length;
+
     if (totalProducts === 0) {
       return [
         { category: 'game', percentage: 0 },
@@ -367,72 +422,159 @@ export class MemStorage implements IStorage {
         { category: 'utility', percentage: 0 }
       ];
     }
-    
-    const categoryCounts = {
-      game: 0,
-      software: 0,
-      utility: 0
-    };
-    
-    for (const product of allProducts) {
-      categoryCounts[product.category as keyof typeof categoryCounts]++;
-    }
-    
-    return [
-      { category: 'game', percentage: Math.round(categoryCounts.game / totalProducts * 100) },
-      { category: 'software', percentage: Math.round(categoryCounts.software / totalProducts * 100) },
-      { category: 'utility', percentage: Math.round(categoryCounts.utility / totalProducts * 100) }
-    ];
+
+    const categoryCounts = products.reduce((counts, product) => {
+      counts[product.category] = (counts[product.category] || 0) + 1;
+      return counts;
+    }, {} as Record<string, number>);
+
+    return Object.entries(categoryCounts).map(([category, count]) => ({
+      category,
+      percentage: Math.round((count / totalProducts) * 100)
+    }));
   }
 
   async getPopularProducts(limit: number): Promise<PopularProduct[]> {
     const productSales = new Map<number, number>();
-    
-    for (const item of Array.from(this.orderItems.values())) {
-      const currentCount = productSales.get(item.productId) || 0;
-      productSales.set(item.productId, currentCount + item.quantity);
+    const orderItems = await this.db.collection("orderItems").find().toArray();
+
+    for (const item of orderItems) {
+      productSales.set(item.productId, (productSales.get(item.productId) || 0) + item.quantity);
     }
-    
+
     const productsWithSales = Array.from(productSales.entries())
-      .map(([productId, sales]) => {
-        const product = this.products.get(productId);
-        return {
-          id: productId,
-          name: product?.name || 'Unknown Product',
-          sales,
-          category: product?.category || 'unknown'
-        };
-      })
-      .sort((a, b) => b.sales - a.sales)
-      .slice(0, limit);
-    
-    return productsWithSales;
+      .map(([productId, sales]) => ({
+        id: productId,
+        name: '',
+        sales,
+        category: ''
+      }));
+
+    for (const product of productsWithSales) {
+      const productDetails = await this.getProduct(product.id);
+      if (productDetails) {
+        product.name = productDetails.name;
+        product.category = productDetails.category;
+      }
+    }
+
+    return productsWithSales.sort((a, b) => b.sales - a.sales).slice(0, limit);
   }
 
   // User operations
   async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
+    const result = await this.db.collection("users").findOne({ id });
+    return result ? {
+      id: result.id,
+      name: result.name,
+      username: result.username,
+      password: result.password,
+      role: result.role,
+      avatar: result.avatar ?? null
+    } as User : undefined;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username
-    );
+    const result = await this.db.collection("users").findOne({ username });
+    return result ? {
+      id: result.id,
+      name: result.name,
+      username: result.username,
+      password: result.password,
+      role: result.role,
+      avatar: result.avatar ?? null
+    } : undefined;
   }
 
   async createUser(user: InsertUser): Promise<User> {
-    const id = this.userCounter++;
-    const newUser: User = { 
-      id,
-      name: user.name,
-      username: user.username,
-      password: user.password,
-      role: user.role,
-      avatar: user.avatar ?? null
+    const newUser = {
+      ...user,
+      id: Date.now(),
+      avatar: user.avatar ?? null // Ensure avatar is either a string or null
     };
-    this.users.set(id, newUser);
+    await this.db.collection("users").insertOne(newUser);
     return newUser;
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new MongoStorage();
+
+import { faker } from '@faker-js/faker'; // Install this library using `npm install @faker-js/faker`
+
+export async function generateRandomData(storage: MongoStorage, count: { users: number; customers: number; products: number; orders: number; activities: number }) {
+  // Generate random users
+  for (let i = 0; i < count.customers; i++) {
+    await storage.createUser({
+      username: "ikienkinzero",
+      password: "@l0@l0123",
+      name: faker.person.fullName(),
+      role: "Administrator",
+      avatar: faker.image.avatar()
+    });
+  }
+
+  // Generate random customers
+  for (let i = 0; i < count.customers; i++) {
+    await storage.createCustomer({
+      name: faker.person.fullName(),
+      email: faker.internet.email(),
+      phone: faker.phone.number(),
+      address: faker.location.streetAddress()
+    });
+  }
+
+  // Generate random products
+  for (let i = 0; i < count.products; i++) {
+    await storage.createProduct({
+      name: faker.commerce.productName(),
+      description: faker.commerce.productDescription(),
+      category: faker.helpers.arrayElement(['game', 'software', 'utility']),
+      price: faker.number.float({ min: 10, max: 500, fractionDigits: 2 }),
+      stock: faker.number.int({ min: 0, max: 100 }),
+      image: faker.image.url()
+    });
+  }
+
+  // Generate random orders
+  const customers = await storage.getCustomers();
+  const products = await storage.getProducts();
+
+  for (let i = 0; i < count.orders; i++) {
+    const customer = faker.helpers.arrayElement(customers);
+    const orderItems = Array.from({ length: faker.number.int({ min: 1, max: 5 }) }).map(() => {
+      const product = faker.helpers.arrayElement(products);
+      return {
+        productId: product.id,
+        quantity: faker.number.int({ min: 1, max: 5 }),
+        price: product.price,
+        orderId: 0 // Placeholder, will be updated when the order is created
+      };
+    });
+
+    const total = orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+    await storage.createOrder(
+      {
+        customerId: customer.id,
+        total,
+        status: faker.helpers.arrayElement(['pending', 'processing', 'completed', 'failed'])
+      },
+      orderItems
+    );
+  }
+
+  // Generate random activities
+  for (let i = 0; i < count.activities; i++) {
+    const customer = faker.helpers.arrayElement(customers);
+    await storage.createActivity({
+      type: faker.helpers.arrayElement(['account_created', 'purchase', 'payment_updated', 'order_completed', 'other']),
+      description: faker.lorem.sentence(),
+      customerId: customer.id,
+      metadata: JSON.stringify({ ip: faker.internet.ip() })
+    });
+  }
+}
+
+// Example usage
+// Call this function in your application to populate the storage with random data
+generateRandomData(storage, { users: 3, customers: 10, products: 15, orders: 15, activities: 15 });

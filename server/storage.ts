@@ -577,4 +577,4 @@ export async function generateRandomData(storage: MongoStorage, count: { users: 
 
 // Example usage
 // Call this function in your application to populate the storage with random data
-generateRandomData(storage, { users: 3, customers: 10, products: 15, orders: 15, activities: 15 });
+generateRandomData(storage, { users: 1, customers: 10, products: 15, orders: 15, activities: 15 });

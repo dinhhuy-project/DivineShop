@@ -8,17 +8,17 @@ async function throwIfResNotOk(res: Response) {
 }
 
 export async function apiRequest({ 
-  endpoint, 
+  url, 
   method = 'GET', 
   data 
 }: { 
-  endpoint: string; 
+  url: string; 
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'; 
   data?: unknown;
 }) {
   try {
-    const url = endpoint.startsWith('/') ? `/api${endpoint}` : `/api/${endpoint}`;
-    const res = await fetch(url, {
+    const apiUrl = url.startsWith('/') ? `/api${url}` : `/api/${url}`;
+    const res = await fetch(apiUrl, {
       method,
       headers: data ? { "Content-Type": "application/json" } : {},
       body: data ? JSON.stringify(data) : undefined,
@@ -44,11 +44,13 @@ export async function apiRequest({
 
 type UnauthorizedBehavior = "returnNull" | "throw";
 export const getQueryFn: <T>(options: {
+  endpoint: string;
   on401: UnauthorizedBehavior;
 }) => QueryFunction<T> =
-  ({ on401: unauthorizedBehavior }) =>
-  async ({ queryKey }) => {
-    const res = await fetch(queryKey[0] as string, {
+  ({ endpoint, on401: unauthorizedBehavior }) =>
+  async () => {
+    const apiUrl = endpoint.startsWith('/') ? `/api${endpoint}` : `/api/${endpoint}`;
+    const res = await fetch(apiUrl, {
       credentials: "include",
     });
 
@@ -63,7 +65,6 @@ export const getQueryFn: <T>(options: {
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      queryFn: getQueryFn({ on401: "throw" }),
       refetchInterval: false,
       refetchOnWindowFocus: false,
       staleTime: Infinity,

@@ -21,7 +21,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const checkAuth = async () => {
       try {
         const response = await apiRequest({ 
-          url: '/auth/me'
+          endpoint: '/auth/me'
         });
         
         if (response.success && response.data) {
@@ -41,7 +41,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (username: string, password: string) => {
     try {
       const response = await apiRequest({ 
-        url: '/auth/login', 
+        endpoint: '/auth/login', 
         method: 'POST', 
         data: { username, password } 
       });
@@ -66,7 +66,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = async () => {
     try {
       await apiRequest({ 
-        url: '/auth/logout', 
+        endpoint: '/auth/logout', 
         method: 'POST' 
       });
     } finally {

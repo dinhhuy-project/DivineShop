@@ -3,94 +3,110 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import NotFound from "@/pages/not-found";
-import AppLayout from "@/components/layout/AppLayout";
-import Dashboard from "@/pages/Dashboard";
-import Customers from "@/pages/Customers";
-import Products from "@/pages/Products";
-import Orders from "@/pages/Orders";
-import Reports from "@/pages/Reports";
-import Settings from "@/pages/Settings";
-import Login from "@/pages/Login";
-import Signup from "@/pages/Signup";
+
+import AdminLayout from "@/components/layout/AdminLayout";
+import Dashboard from "@/pages/admin/Dashboard";
+import Customers from "@/pages/admin/Customers";
+import Products from "@/pages/admin/Products";
+import Orders from "@/pages/admin/Orders";
+import Reports from "@/pages/admin/Reports";
+import Settings from "@/pages/admin/Settings";
+import Login from "@/pages/admin/Login";
+import Signup from "@/pages/admin/Signup";
+
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { AuthProvider } from "@/hooks/use-auth";
+import { useLocation } from "wouter";
+import { Admin } from "mongodb";
+import { sign } from "crypto";
+import { useEffect } from "react";
 
-function Router() {
+function AppRouter() {
+  const [, setLocation] = useLocation();
+
+  useEffect(() => {
+    setLocation("/admin/dashboard");
+  }, [setLocation])
+
+  return null;
+}
+
+function AdminRouter() {
   return (
     <Switch>
-      <Route path="/login" component={Login} />
-      <Route path="/signup" component={Signup} />
-      
-      <Route path="/">
+      <Route path="/admin/login" component={Login} />
+      <Route path="/admin/signup" component={Signup} />
+
+      <Route path="/admin">
         {() => (
           <ProtectedRoute>
-            <AppLayout>
+            <AdminLayout>
               <Dashboard />
-            </AppLayout>
+            </AdminLayout>
           </ProtectedRoute>
         )}
       </Route>
-      
-      <Route path="/dashboard">
+
+      <Route path="/admin/dashboard">
         {() => (
           <ProtectedRoute>
-            <AppLayout>
+            <AdminLayout>
               <Dashboard />
-            </AppLayout>
+            </AdminLayout>
           </ProtectedRoute>
         )}
       </Route>
-      
-      <Route path="/customers">
+
+      <Route path="/admin/customers">
         {() => (
           <ProtectedRoute>
-            <AppLayout>
+            <AdminLayout>
               <Customers />
-            </AppLayout>
+            </AdminLayout>
           </ProtectedRoute>
         )}
       </Route>
-      
-      <Route path="/products">
+
+      <Route path="/admin/products">
         {() => (
           <ProtectedRoute>
-            <AppLayout>
+            <AdminLayout>
               <Products />
-            </AppLayout>
+            </AdminLayout>
           </ProtectedRoute>
         )}
       </Route>
-      
-      <Route path="/orders">
+
+      <Route path="/admin/orders">
         {() => (
           <ProtectedRoute>
-            <AppLayout>
+            <AdminLayout>
               <Orders />
-            </AppLayout>
+            </AdminLayout>
           </ProtectedRoute>
         )}
       </Route>
-      
-      <Route path="/reports">
+
+      <Route path="/admin/reports">
         {() => (
           <ProtectedRoute>
-            <AppLayout>
+            <AdminLayout>
               <Reports />
-            </AppLayout>
+            </AdminLayout>
           </ProtectedRoute>
         )}
       </Route>
-      
-      <Route path="/settings">
+
+      <Route path="/admin/settings">
         {() => (
           <ProtectedRoute>
-            <AppLayout>
+            <AdminLayout>
               <Settings />
-            </AppLayout>
+            </AdminLayout>
           </ProtectedRoute>
         )}
       </Route>
-      
+
       <Route component={NotFound} />
     </Switch>
   );
@@ -100,7 +116,8 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <Router />
+        <AppRouter />
+        <AdminRouter />
         <Toaster />
       </AuthProvider>
     </QueryClientProvider>

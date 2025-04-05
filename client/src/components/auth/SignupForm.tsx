@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -21,10 +22,12 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-export default function SignupForm() {
+// Well this is stupid, handling the signup for both admin and user in the same component
+export default function SignupForm({ role = "user" }: { role?: string }) {
   const [isLoading, setIsLoading] = useState(false);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const { login } = useAuth();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -46,7 +49,7 @@ export default function SignupForm() {
       const response = await apiRequest({ 
         endpoint: '/auth/signup', 
         method: 'POST', 
-        data: { ...signupData, role: 'user' }
+        data: { ...signupData, role: role }
       });
       
       if (response.success) {
@@ -54,7 +57,11 @@ export default function SignupForm() {
           title: "Registration successful",
           description: "Your account has been created. You can now sign in.",
         });
-        setLocation("/login");
+        if (role === "admin") {
+          setLocation("/admin/dashboard");
+        } else {
+          setLocation("/");
+        }
       } else {
         toast({
           title: "Registration failed",

@@ -42,7 +42,7 @@ export default function LoginForm() {
           title: "Login successful",
           description: "Welcome back to DivineShop CRM!",
         });
-        setLocation("/dashboard");
+        setLocation("/admin/dashboard");
       } else {
         toast({
           title: "Login failed",

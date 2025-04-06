@@ -40,7 +40,7 @@ export default function LoginForm() {
       if (result.success) {
         toast({
           title: "Login successful",
-          description: "Welcome back to DivineShop CRM!",
+          description: "Welcome back to GameSoft CRM!",
         });
         setLocation("/dashboard");
       } else {

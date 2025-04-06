@@ -32,7 +32,6 @@ export default function Products() {
   const createProductMutation = useMutation({
     mutationFn: async (product: InsertProduct) => {
       return apiRequest({ method: 'POST', endpoint: 'products', data: product }); // No need for res.json()
-      // console.log('product', product);
       // const res = await apiRequest({ method: 'POST', endpoint: 'products', data: product });
       // return res.json();
     },
@@ -100,7 +99,7 @@ export default function Products() {
 
   const handleSearchChange = (value: string) => {
     setSearchQuery(value);
-    setActiveCategory('all');
+    setActiveCategory(value ? 'all' : activeCategory);
   };
 
   const handleCreateProduct = (data: InsertProduct) => {

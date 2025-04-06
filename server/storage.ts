@@ -503,7 +503,7 @@ import { faker } from '@faker-js/faker'; // Install this library using `npm inst
 
 export async function generateRandomData(storage: MongoStorage, count: { users: number; customers: number; products: number; orders: number; activities: number }) {
   // Generate random users
-  for (let i = 0; i < count.customers; i++) {
+  for (let i = 0; i < count.users; i++) {
     await storage.createUser({
       username: "ikienkinzero",
       password: "@l0@l0123",
@@ -531,7 +531,7 @@ export async function generateRandomData(storage: MongoStorage, count: { users: 
       category: faker.helpers.arrayElement(['game', 'software', 'utility']),
       price: faker.number.float({ min: 10, max: 500, fractionDigits: 2 }),
       stock: faker.number.int({ min: 0, max: 100 }),
-      image: faker.image.url()
+      image: "https://cdn.divineshop.vn/image/catalog/Anh-SP/Youtube/YouTube%20Premium%20Music-1nam-65910.png?hash=1715587226"
     });
   }
 
@@ -577,4 +577,4 @@ export async function generateRandomData(storage: MongoStorage, count: { users: 
 
 // Example usage
 // Call this function in your application to populate the storage with random data
-generateRandomData(storage, { users: 1, customers: 10, products: 15, orders: 15, activities: 15 });
+generateRandomData(storage, { users: 0, customers: 10, products: 15, orders: 15, activities: 15 });

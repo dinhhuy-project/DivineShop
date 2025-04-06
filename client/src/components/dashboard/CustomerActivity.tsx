@@ -18,7 +18,6 @@ interface CustomerActivityProps {
 }
 
 export default function CustomerActivity({ activities }: CustomerActivityProps) {
-  // console.log(activities);
   // Get the appropriate icon based on activity type
   const getActivityIcon = (type: string) => {
     switch (type) {
@@ -88,8 +87,8 @@ export default function CustomerActivity({ activities }: CustomerActivityProps) 
                 </div>
                 <div className="ml-3 flex-1">
                   <p className="text-sm text-gray-900">
-                    <span className="font-medium">{activity?.customer?.name}</span>{' '}
-                    {activity.description.replace(activity?.customer?.name, '')}
+                    <span className="font-medium">{activity.customer.name}</span>{' '}
+                    {activity.description.replace(activity.customer.name, '')}
                   </p>
                   <p className="text-xs text-gray-500">
                     {formatDistanceToNow(new Date(activity.timestamp), { addSuffix: true })}

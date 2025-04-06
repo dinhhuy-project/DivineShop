@@ -2,6 +2,7 @@ import express, { type Express, Request, Response, NextFunction } from "express"
 import { createServer, type Server } from "http";
 import type { Session } from "express-session";
 import { storage } from "./storage";
+import Stripe from "stripe";
 import { 
   insertCustomerSchema, 
   insertProductSchema, 
@@ -11,6 +12,15 @@ import {
   insertUserSchema
 } from "@shared/schema";
 import { z } from "zod";
+import { config } from 'dotenv';
+// Load environment variables from .env file
+config();
+
+// Initialize Stripe
+if (!process.env.STRIPE_SECRET_KEY) {
+  throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
+}
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 // Helper function for validation
 const validateBody = <T>(schema: z.ZodType<T>) => {
@@ -58,7 +68,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await storage.createActivity({
         customerId: customer.id,
         type: "account_created",
-        description: `${customer.name} created a new customer`,
+        description: `${customer.name} created a new account`,
         metadata: null
       });
       
@@ -458,6 +468,139 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ 
         success: false,
         message: "Authentication error" 
+      });
+    }
+  });
+
+  // Stripe payment routes
+  router.post("/payments/create-payment-intent", async (req, res) => {
+    try {
+      const { amount } = req.body;
+      
+      if (!amount || amount <= 0) {
+        return res.status(400).json({ 
+          success: false, 
+          message: "Valid amount is required" 
+        });
+      }
+      
+      // Create a PaymentIntent with the order amount and currency
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: Math.round(amount * 100), // Convert to cents
+        currency: "usd",
+        automatic_payment_methods: {
+          enabled: true,
+        },
+      });
+      
+      res.json({ 
+        success: true, 
+        clientSecret: paymentIntent.client_secret 
+      });
+    } catch (error: any) {
+      console.error("Error creating payment intent:", error);
+      res.status(500).json({ 
+        success: false, 
+        message: error.message || "Failed to create payment intent" 
+      });
+    }
+  });
+  
+  // Process orders with payment confirmation
+  router.post("/payments/confirm-order", async (req: Request, res: Response) => {
+    try {
+      const { 
+        paymentIntentId, 
+        order, 
+        items,
+        customer 
+      } = req.body;
+      
+      if (!paymentIntentId) {
+        return res.status(400).json({ 
+          success: false, 
+          message: "Payment Intent ID is required" 
+        });
+      }
+      
+      // Verify payment intent is successful
+      const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+      
+      if (paymentIntent.status !== 'succeeded') {
+        return res.status(400).json({ 
+          success: false, 
+          message: "Payment has not been completed" 
+        });
+      }
+      
+      // Process customer if provided
+      let customerId = order.customerId;
+      if (customer && !customerId) {
+        // Check if customer exists with this email
+        const existingCustomers = await storage.searchCustomers(customer.email);
+        let customerRecord;
+        
+        if (existingCustomers.length > 0) {
+          // Use existing customer
+          customerRecord = existingCustomers[0];
+        } else {
+          // Create new customer
+          customerRecord = await storage.createCustomer({
+            name: customer.name,
+            email: customer.email,
+            phone: customer.phone || null,
+            address: customer.address || null
+          });
+          
+          // Log activity for new customer
+          await storage.createActivity({
+            customerId: customerRecord.id,
+            type: "account_created",
+            description: `${customerRecord.name} created an account during checkout`,
+            metadata: null
+          });
+        }
+        
+        customerId = customerRecord.id;
+      }
+      
+      // Process the order
+      const parsedOrder = insertOrderSchema.parse({
+        ...order,
+        customerId,
+        status: "processing" // Initially set as processing
+      });
+      
+      // Validate each order item
+      const parsedItems = items.map((item: any) => insertOrderItemSchema.parse(item));
+      
+      // Create the order
+      const newOrder = await storage.createOrder(parsedOrder, parsedItems);
+      
+      // Create purchase activity
+      await storage.createActivity({
+        customerId,
+        type: "purchase",
+        description: `Order #${newOrder.id} placed successfully`,
+        metadata: JSON.stringify({ 
+          orderId: newOrder.id,
+          paymentIntentId
+        })
+      });
+      
+      // Mark the order as completed since payment is successful
+      const updatedOrder = await storage.updateOrderStatus(newOrder.id, "completed");
+      
+      res.status(201).json({ 
+        success: true, 
+        order: updatedOrder,
+        message: "Order placed successfully" 
+      });
+    } catch (error: any) {
+      console.error("Error confirming order:", error);
+      res.status(500).json({ 
+        success: false, 
+        message: error.message || "Failed to process order" 
       });
     }
   });

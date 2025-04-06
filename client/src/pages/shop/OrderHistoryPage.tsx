@@ -24,7 +24,7 @@ export default function OrderHistoryPage() {
   
   // Fetch user orders
   const { data: orders, isLoading } = useQuery<Order[]>({
-    queryKey: ['/api/orders/user'],
+    queryKey: [`/api/orders/customer/${user?.id}`],
     enabled: isAuthenticated && !!user,
   });
   
@@ -125,7 +125,7 @@ export default function OrderHistoryPage() {
         )}
         
         {/* Digital downloads section */}
-        {orders && orders.some(order => order.status.toLowerCase() === 'completed') && (
+        {Array.isArray(orders) && orders.some(order => order.status.toLowerCase() === 'completed') && (
           <div className="mt-12">
             <h2 className="text-2xl font-bold mb-4">My Digital Products</h2>
             <div className="bg-white rounded-lg shadow-md p-6">

@@ -81,6 +81,7 @@ export interface IStorage {
   createOrder(order: InsertOrder, items: InsertOrderItem[]): Promise<Order>;
   updateOrderStatus(id: number, status: string): Promise<Order | undefined>;
   getRecentOrders(limit: number): Promise<OrderWithDetails[]>;
+  getOrdersByCustomer(customerId: number): Promise<Order[]>;
 
   // Activity operations
   getActivities(): Promise<Activity[]>;
@@ -340,6 +341,16 @@ export class MongoStorage implements IStorage {
     return Promise.all(
       orders.map(async (order) => this.getOrderWithDetails(order.id) as Promise<OrderWithDetails>)
     );
+  }
+
+  async getOrdersByCustomer(customerId: number): Promise<Order[]> {
+    return await this.db.collection<Order>("orders").find({ customerId }).map(doc => ({
+      id: doc.id,
+      status: doc.status as "pending" | "processing" | "completed" | "failed" | "cancelled",
+      customerId: doc.customerId,
+      orderDate: new Date(doc.orderDate),
+      total: doc.total
+    })).toArray();
   }
 
   // Activity operations

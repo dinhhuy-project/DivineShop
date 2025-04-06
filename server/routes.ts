@@ -283,6 +283,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  router.get("/orders/customer/:customerId", async (req, res) => {
+    const customerId = parseInt(req.params.customerId, 10);
+    if (isNaN(customerId)) {
+      return res.status(400).json({ error: "Invalid customer ID" });
+    }
+  
+    try {
+      const orders = await storage.getOrdersByCustomer(customerId);
+      res.json(orders);
+    } catch (error) {
+      console.error("Error fetching orders by customer:", error);
+      res.status(500).json({ error: "Failed to fetch orders" });
+    }
+  });
+
   // Activity routes
   router.get("/activities/recent/:limit", async (req, res) => {
     try {

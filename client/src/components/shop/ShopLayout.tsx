@@ -44,7 +44,7 @@ export default function ShopLayout({ children }: ShopLayoutProps) {
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center">
             <Link href="/shop">
-              <a className="text-2xl font-bold text-primary">DigitalStore</a>
+              <a className="text-2xl font-bold text-primary">DivineShop</a>
             </Link>
           </div>
 
@@ -204,7 +204,7 @@ export default function ShopLayout({ children }: ShopLayoutProps) {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div>
-              <h3 className="text-lg font-semibold mb-4">DigitalStore</h3>
+              <h3 className="text-lg font-semibold mb-4">DivineShop</h3>
               <p className="text-gray-300">
                 Your one-stop shop for digital games, software, and utilities.
               </p>
@@ -237,13 +237,13 @@ export default function ShopLayout({ children }: ShopLayoutProps) {
             <div>
               <h3 className="text-lg font-semibold mb-4">Contact</h3>
               <p className="text-gray-300">
-                Email: support@digitalstore.com<br />
+                Email: support@DivineShop.com<br />
                 Phone: (555) 123-4567
               </p>
             </div>
           </div>
           <div className="mt-8 pt-8 border-t border-gray-700 text-center text-gray-300">
-            <p>&copy; {new Date().getFullYear()} DigitalStore. All rights reserved.</p>
+            <p>&copy; {new Date().getFullYear()} DivineShop. All rights reserved.</p>
           </div>
         </div>
       </footer>

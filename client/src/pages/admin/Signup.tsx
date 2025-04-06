@@ -17,15 +17,6 @@ export default function Signup() {
       
       <div className="w-full max-w-md bg-white rounded-xl shadow-md p-8 border border-gray-100">
         <SignupForm />
-        
-        <div className="mt-6 text-center">
-          <p className="text-sm text-gray-600">
-            Already have an account?{" "}
-            <Link href="/login" className="text-primary font-medium hover:underline">
-              Sign in
-            </Link>
-          </p>
-        </div>
       </div>
       
       <p className="text-xs text-gray-500 mt-8">

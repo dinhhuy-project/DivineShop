@@ -24,12 +24,12 @@ export default function Sidebar({
   const [location] = useLocation();
   
   const navItems = [
-    { path: '/dashboard', label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
-    { path: '/customers', label: 'Customers', icon: <Users size={20} /> },
-    { path: '/products', label: 'Products', icon: <PackageIcon size={20} /> },
-    { path: '/orders', label: 'Orders', icon: <ShoppingCart size={20} /> },
-    { path: '/reports', label: 'Reports', icon: <BarChart2 size={20} /> },
-    { path: '/settings', label: 'Settings', icon: <Settings size={20} /> },
+    { path: '/admin/dashboard', label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
+    { path: '/admin/customers', label: 'Customers', icon: <Users size={20} /> },
+    { path: '/admin/products', label: 'Products', icon: <PackageIcon size={20} /> },
+    { path: '/admin/orders', label: 'Orders', icon: <ShoppingCart size={20} /> },
+    { path: '/admin/reports', label: 'Reports', icon: <BarChart2 size={20} /> },
+    { path: '/admin/settings', label: 'Settings', icon: <Settings size={20} /> },
   ];
 
   const sidebarClasses = isMobile

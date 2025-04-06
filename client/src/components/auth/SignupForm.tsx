@@ -152,7 +152,7 @@ export default function SignupForm() {
             <p className="text-sm text-gray-600">
               Already have an account?{" "}
               <a 
-                onClick={() => setLocation("/login")} 
+                onClick={() => setLocation("/admin/login")} 
                 className="font-semibold text-primary cursor-pointer hover:underline"
               >
                 Sign in

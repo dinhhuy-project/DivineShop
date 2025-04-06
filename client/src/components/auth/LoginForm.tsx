@@ -42,7 +42,7 @@ export default function LoginForm() {
           title: "Login successful",
           description: "Welcome back to GameSoft CRM!",
         });
-        setLocation("/dashboard");
+        setLocation("/admin/dashboard");
       } else {
         toast({
           title: "Login failed",
@@ -112,7 +112,7 @@ export default function LoginForm() {
             <p className="text-sm text-gray-600">
               Don't have an account?{" "}
               <a 
-                onClick={() => setLocation("/signup")} 
+                onClick={() => setLocation("/admin/signup")} 
                 className="font-semibold text-primary cursor-pointer hover:underline"
               >
                 Sign up

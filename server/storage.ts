@@ -129,7 +129,14 @@ export class MongoStorage implements IStorage {
       { $set: customer },
       { returnDocument: "after" }
     );
-    return result ? result.value : undefined;
+    return result ? {
+      id: result.id,
+      name: result.name,
+      email: result.email,
+      phone: result.phone,
+      address: result.address,
+      createdAt: new Date(result.createdAt)
+    } : undefined;
   }
 
   async deleteCustomer(id: number): Promise<boolean> {
@@ -185,7 +192,16 @@ export class MongoStorage implements IStorage {
       { $set: product },
       { returnDocument: "after" }
     );
-    return result ? result.value : undefined;
+    return result ? {
+      id: result.id,
+      name: result.name,
+      createdAt: new Date(result.createdAt),
+      description: result.description ?? null,
+      category: result.category as "game" | "software" | "utility",
+      price: result.price,
+      stock: result.stock,
+      image: result.image ?? null
+    } : undefined;
   }
 
   async deleteProduct(id: number): Promise<boolean> {
@@ -302,10 +318,17 @@ export class MongoStorage implements IStorage {
   async updateOrderStatus(id: number, status: string): Promise<Order | undefined> {
     const result = await this.db.collection("orders").findOneAndUpdate(
       { id },
-      { $set: { status } },
-      { returnDocument: "after" }
+      { $set: { status } }
     );
-    return result ? result.value : undefined;
+    console.log("Updated order status:", result);
+    
+    return result ? {
+      id: result.id,
+      customerId: result.customerId,
+      orderDate: new Date(result.orderDate),
+      status: result.status as "pending" | "processing" | "completed" | "failed" | "cancelled",
+      total: result.total
+    } : undefined;
   }
 
   async getRecentOrders(limit: number): Promise<OrderWithDetails[]> {

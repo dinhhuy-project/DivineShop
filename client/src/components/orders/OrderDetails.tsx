@@ -40,16 +40,15 @@ export default function OrderDetails({
   };
 
   // Format the order date
-  const formatOrderDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
+  const formatOrderDate = (date: Date) => {
+      return date.toLocaleString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    };
 
   if (isLoading) {
     return (
@@ -109,7 +108,7 @@ export default function OrderDetails({
       <div className="flex items-center justify-between bg-gray-50 p-3 rounded-md">
         <div>
           <p className="text-sm font-medium">Status</p>
-          <Badge variant="outline" {...formatOrderStatus(order.status)}>
+          <Badge {...formatOrderStatus(order.status)}>
             {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
           </Badge>
         </div>

@@ -23,19 +23,19 @@ export default function Orders() {
   });
 
   const { data: orderDetails, isLoading: isLoadingDetails } = useQuery<OrderWithDetails>({
-    queryKey: ['/api/orders', viewingOrderId],
+    queryKey: [`/api/orders/${viewingOrderId}`],
     enabled: viewingOrderId !== null,
   });
 
   const updateOrderStatusMutation = useMutation({
     mutationFn: async ({ id, status }: { id: number; status: string }) => {
-      const res = await apiRequest({ method: 'PUT', endpoint: `/api/orders/${id}/status`, data: { status } });
-      return res.json();
+      return apiRequest({ method: 'PUT', endpoint: `/orders/${id}/status`, data: { status } });
+      // return res.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/orders'] });
       if (viewingOrderId) {
-        queryClient.invalidateQueries({ queryKey: ['/api/orders', viewingOrderId] });
+        queryClient.invalidateQueries({ queryKey: [`/api/orders/${viewingOrderId}`] });
       }
       toast({
         title: 'Success',

@@ -15,6 +15,8 @@ import Signup from "@/pages/admin/Signup";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { AuthProvider } from "@/hooks/use-auth";
 import { CartProvider } from "@/hooks/use-cart";
+import { useEffect } from "react";
+import { useLocation } from "wouter";
 
 // Import shop pages
 import HomePage from "@/pages/shop/HomePage";
@@ -28,6 +30,32 @@ import LoginPage from "@/pages/shop/LoginPage";
 import SignupPage from "@/pages/shop/SignupPage";
 
 function Router() {
+  const [location] = useLocation();
+
+  useEffect(() => {
+    const routeTitles: { [key: string]: string } = {
+      "/admin/login": "Admin Login - DivineShop",
+      "/admin/signup": "Admin Signup - DivineShop",
+      "/admin/dashboard": "Dashboard - DivineShop",
+      "/admin/customers": "Customers - DivineShop",
+      "/admin/products": "Products - DivineShop",
+      "/admin/orders": "Orders - DivineShop",
+      "/admin/reports": "Reports - DivineShop",
+      "/admin/settings": "Settings - DivineShop",
+      "/": "Home - DivineShop",
+      "/shop": "Shop - DivineShop",
+      "/shop/home": "Shop Home - DivineShop",
+      "/shop/cart": "Cart - DivineShop",
+      "/shop/checkout": "Checkout - DivineShop",
+      "/shop/orders": "Order History - DivineShop",
+      "/shop/login": "Login - DivineShop",
+      "/shop/signup": "Signup - DivineShop",
+      // Add more routes as needed
+    };
+
+    document.title = routeTitles[location] || "DivineShop";
+  }, [location]);
+
   return (
     <Switch>
       {/* Admin routes */}

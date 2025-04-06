@@ -32,16 +32,15 @@ export default function OrderTable({
   };
 
   // Format the order date
-  const formatOrderDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
+  const formatOrderDate = (date: Date) => {
+      return date.toLocaleString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    };
 
   if (isLoading) {
     return (
@@ -102,7 +101,7 @@ export default function OrderTable({
                 <TableCell>{order.customerId}</TableCell>
                 <TableCell>${order.total.toFixed(2)}</TableCell>
                 <TableCell>
-                  <Badge variant="outline" {...formatOrderStatus(order.status)}>
+                  <Badge {...formatOrderStatus(order.status)} variant="outline">
                     {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                   </Badge>
                 </TableCell>

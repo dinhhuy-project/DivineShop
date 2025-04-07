@@ -54,7 +54,7 @@ export default function SignupForm() {
           title: "Registration successful",
           description: "Your account has been created. You can now sign in.",
         });
-        setLocation("/login");
+        setLocation("/admin");
       } else {
         toast({
           title: "Registration failed",
@@ -83,7 +83,7 @@ export default function SignupForm() {
           Sign up to access your GameSoft CRM dashboard
         </p>
       </div>
-      
+
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
@@ -99,7 +99,7 @@ export default function SignupForm() {
               </FormItem>
             )}
           />
-          
+
           <FormField
             control={form.control}
             name="username"
@@ -113,7 +113,7 @@ export default function SignupForm() {
               </FormItem>
             )}
           />
-          
+
           <FormField
             control={form.control}
             name="password"
@@ -127,7 +127,7 @@ export default function SignupForm() {
               </FormItem>
             )}
           />
-          
+
           <FormField
             control={form.control}
             name="confirmPassword"
@@ -141,13 +141,13 @@ export default function SignupForm() {
               </FormItem>
             )}
           />
-          
+
           <div className="pt-2">
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? "Creating account..." : "Create account"}
             </Button>
           </div>
-          
+
           <div className="text-center mt-4">
             <p className="text-sm text-gray-600">
               Already have an account?{" "}

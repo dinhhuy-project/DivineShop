@@ -42,13 +42,14 @@ export default function LoginForm() {
           title: "Login successful",
           description: "Welcome back to GameSoft CRM!",
         });
-        setLocation("/admin/dashboard");
+        setLocation("/admin");
       } else {
         toast({
           title: "Login failed",
           description: result.message || "Invalid username or password. Please try again.",
           variant: "destructive",
         });
+        setIsLoading(false);
       }
     } catch (error) {
       toast({
@@ -56,7 +57,6 @@ export default function LoginForm() {
         description: "An error occurred during login. Please try again.",
         variant: "destructive",
       });
-    } finally {
       setIsLoading(false);
     }
   };

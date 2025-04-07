@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -9,6 +9,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
+import React from "react";
 
 const formSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters"),
@@ -18,46 +19,55 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 export default function LoginForm() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [, setLocation] = useLocation();
+  const { login, isAuthenticated } = useAuth();
+  const [isPending, setIsPending] = React.useState(false);
+  const [, navigate] = useLocation();
   const { toast } = useToast();
-  const { login } = useAuth();
+
+  // Get redirect URL from query params
+  const params = new URLSearchParams(window.location.search);
+  const redirectUrl = params.get('redirect') || '/admin/dashboard';
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate(redirectUrl);
+    }
+  }, [isAuthenticated, navigate, redirectUrl]);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      username: "",
-      password: "",
+      username: '',
+      password: '',
     },
   });
 
   const onSubmit = async (data: FormValues) => {
-    setIsLoading(true);
-    
+    setIsPending(true);
     try {
       const result = await login(data.username, data.password);
-      
       if (result.success) {
         toast({
-          title: "Login successful",
-          description: "Welcome back to GameSoft CRM!",
+          title: 'Login Successful',
+          description: 'Welcome back!',
         });
-        setLocation("/admin");
+        navigate(redirectUrl);
       } else {
         toast({
-          title: "Login failed",
-          description: result.message || "Invalid username or password. Please try again.",
-          variant: "destructive",
+          title: 'Login Failed',
+          description: result.message || 'Invalid username or password',
+          variant: 'destructive',
         });
-        setIsLoading(false);
       }
     } catch (error) {
       toast({
-        title: "Login failed",
-        description: "An error occurred during login. Please try again.",
-        variant: "destructive",
+        title: 'Login Failed',
+        description: 'An error occurred. Please try again.',
+        variant: 'destructive',
       });
-      setIsLoading(false);
+    } finally {
+      setIsPending(false);
     }
   };
 
@@ -71,7 +81,7 @@ export default function LoginForm() {
           Sign in to access your CRM dashboard
         </p>
       </div>
-      
+
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
           <FormField
@@ -87,7 +97,7 @@ export default function LoginForm() {
               </FormItem>
             )}
           />
-          
+
           <FormField
             control={form.control}
             name="password"
@@ -101,18 +111,18 @@ export default function LoginForm() {
               </FormItem>
             )}
           />
-          
+
           <div className="pt-2">
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Signing in..." : "Sign in"}
+            <Button type="submit" className="w-full" disabled={isPending}>
+              {isPending ? "Signing in..." : "Sign in"}
             </Button>
           </div>
-          
+
           <div className="text-center mt-4">
             <p className="text-sm text-gray-600">
               Don't have an account?{" "}
-              <a 
-                onClick={() => setLocation("/admin/signup")} 
+              <a
+                onClick={() => navigate("/admin/signup")}
                 className="font-semibold text-primary cursor-pointer hover:underline"
               >
                 Sign up

@@ -80,7 +80,7 @@ export default function SignupForm() {
           Create an account
         </h2>
         <p className="mt-2 text-sm text-center text-gray-600">
-          Sign up to access your GameSoft CRM dashboard
+          Sign up to access your DivineShop CRM dashboard
         </p>
       </div>
 

@@ -309,6 +309,10 @@ export class MongoStorage implements IStorage {
       // Update product stock
       const product = await this.getProduct(item.productId);
       if (product) {
+        if (product.stock < item.quantity) {
+          item.quantity = product.stock; // Adjust quantity to available stock
+        }
+        // Decrease the stock of the product
         await this.updateProduct(item.productId, { stock: product.stock - item.quantity });
       }
     }

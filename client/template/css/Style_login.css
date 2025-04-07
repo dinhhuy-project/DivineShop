@@ -1,0 +1,149 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.login-container {
+    background-color: white;
+    padding: 25px;
+    border-radius: 12px; 
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    width: 320px;
+    text-align: center;
+    transition: transform 0.3s ease-in-out;
+}
+
+.login-container .login {
+    color: black;
+    font-weight: bold;
+    text-decoration: none;
+    font-size: 25px;
+}
+
+.login-container .register {
+    color: #6b7280;
+    font-weight: bold;
+    text-decoration: none;
+    font-size: 25px;
+}
+
+.login-container .login:hover {
+    text-decoration: underline;
+}
+
+.login-container .register:hover {
+    text-decoration: underline;
+}
+
+.login-container .forgotPassword {
+    color: #257ff5;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 10px 0;
+}
+
+.login-container .forgotPassword:hover {
+    text-decoration: underline;
+}
+
+h1 {
+    margin-bottom: 20px;
+    font-size: 15px;
+    color: #374151;
+
+}
+
+.input-group {
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.input-group label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #555;
+}
+
+.input-group input {
+
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    padding-right: 145px;
+}
+
+button {
+    background-color: #2985ff;
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 100%;
+    font-size: 16px;
+    transition: background 0.3s;
+}
+
+button:hover {
+    transform: scale(1.01);
+}
+.login-gg {
+    align-items: center;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    font-size: 18px;
+    justify-content: center;
+    padding: 14px 0;
+}
+
+.login-gg>.login-gg-icon {
+    height: 24px;
+    margin-right: 10px;
+}
+
+.login-gg>.login-gg-text {
+    margin: 0;
+    padding: 0;
+}
+
+.login-zalo {
+    align-items: center;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    font-size: 18px;
+    justify-content: center;
+    padding: 14px 0;
+}
+
+.login-zalo>.login-zalo-icon {
+    height: 24px;
+    margin-right: 10px;
+}
+
+.login-zalo>.login-zalo-text {
+    margin: 0;
+    padding: 0;
+}
+
+.login-gg-zalo {    
+    margin-bottom: 20px;
+    font-size: 15px;
+    color: #333;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
+}

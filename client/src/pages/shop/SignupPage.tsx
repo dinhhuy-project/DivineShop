@@ -68,7 +68,7 @@ export default function SignupPage() {
         data: {
           username: data.username,
           password: data.password,
-          role: 'user',
+          role: 'customer',
           name: data.email,
           id: Date.now(),
           avatar: null // Ensure avatar is either a string or null
@@ -81,7 +81,7 @@ export default function SignupPage() {
       }
       
       // Log in after successful signup
-      const loginResult = await login(data.username, data.password);
+      const loginResult = await login(data.username, data.password, 'customer');
       
       if (loginResult.success) {
         toast({

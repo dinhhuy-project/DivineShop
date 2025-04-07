@@ -53,7 +53,7 @@ export default function LoginPage() {
   const onSubmit = async (data: FormValues) => {
     setIsPending(true);
     try {
-      const result = await login(data.username, data.password);
+      const result = await login(data.username, data.password, "customer");
       if (result.success) {
         toast({
           title: 'Login Successful',

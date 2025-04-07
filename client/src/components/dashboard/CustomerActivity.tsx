@@ -66,7 +66,7 @@ export default function CustomerActivity({ activities }: CustomerActivityProps) 
               <SelectItem value="last30days">Last 30 days</SelectItem>
             </SelectContent>
           </Select>
-          <Link href="/customers">
+          <Link href="/admin/customers">
             <Button variant="link" size="sm" className="text-primary">
               View All
             </Button>

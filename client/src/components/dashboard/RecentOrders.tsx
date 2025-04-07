@@ -15,7 +15,7 @@ export default function RecentOrders({ orders }: RecentOrdersProps) {
     <Card className="shadow-sm">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle className="text-lg font-semibold">Recent Orders</CardTitle>
-        <Link href="/orders">
+        <Link href="/admin/orders">
           <Button variant="link" size="sm" className="text-primary">
             View All
           </Button>
@@ -56,12 +56,12 @@ export default function RecentOrders({ orders }: RecentOrdersProps) {
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-900">${order.total.toFixed(2)}</td>
                       <td className="px-4 py-3 text-sm">
-                        <Badge variant="outline" {...formatOrderStatus(order.status)}>
+                        <Badge {...formatOrderStatus(order.status)}>
                           {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                         </Badge>
                       </td>
                       <td className="px-4 py-3 text-sm">
-                        <Link href={`/orders?id=${order.id}`}>
+                        <Link href={`/admin/orders?id=${order.id}`}>
                           <Button variant="ghost" size="icon">
                             <ChevronRight className="h-4 w-4" />
                           </Button>

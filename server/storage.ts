@@ -17,7 +17,7 @@ if (!process.env.MONGODB_URL) {
 }
 
 let uri = process.env.MONGODB_URL;
-  
+
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
   serverApi: {
@@ -113,14 +113,25 @@ export class MongoStorage implements IStorage {
   }
 
   async createCustomer(customer: InsertCustomer): Promise<Customer> {
+    let cusId = Date.now();
     const newCustomer = {
       ...customer,
-      id: Date.now(),
+      id: cusId,
       createdAt: new Date(),
       phone: customer.phone ?? null,
       address: customer.address ?? null
     };
     await this.db.collection("customers").insertOne(newCustomer);
+    // Create a new user for the customer
+    const newUser = {
+      id: cusId,
+      username: customer.name,
+      password: "@l0@l0123",
+      name: customer.name,
+      role: "customer",
+      avatar: null // Ensure avatar is either a string or null
+    }
+    await this.db.collection("users").insertOne(newUser);
     return newCustomer;
   }
 
@@ -283,10 +294,10 @@ export class MongoStorage implements IStorage {
       })
     );
 
-    return { 
-      ...order, 
-      customer: customer || { id: 0, name: "Unknown", email: "", phone: null, address: null, createdAt: new Date() }, 
-      items: detailedItems 
+    return {
+      ...order,
+      customer: customer || { id: 0, name: "Unknown", email: "", phone: null, address: null, createdAt: new Date() },
+      items: detailedItems
     };
   }
 
@@ -300,18 +311,18 @@ export class MongoStorage implements IStorage {
     await this.db.collection("orders").insertOne(newOrder);
 
     for (const item of items) {
-      await this.db.collection("orderItems").insertOne({
-        ...item,
-        id: Date.now(),
-        orderId: newOrder.id
-      });
-
-      // Update product stock
       const product = await this.getProduct(item.productId);
       if (product) {
         if (product.stock < item.quantity) {
           item.quantity = product.stock; // Adjust quantity to available stock
         }
+        await this.db.collection("orderItems").insertOne({
+          ...item,
+          id: Date.now(),
+          orderId: newOrder.id
+        });
+
+        // Update product stock
         // Decrease the stock of the product
         await this.updateProduct(item.productId, { stock: product.stock - item.quantity });
       }
@@ -326,7 +337,7 @@ export class MongoStorage implements IStorage {
       { $set: { status } }
     );
     console.log("Updated order status:", result);
-    
+
     return result ? {
       id: result.id,
       customerId: result.customerId,
@@ -553,11 +564,16 @@ export async function generateRandomData(storage: MongoStorage, count: { users: 
 
   // Generate random customers
   for (let i = 0; i < count.customers; i++) {
+    let cusname = faker.person.fullName();
+    let cusemail = faker.internet.email();
+    let cusphone = faker.phone.number();
+    let cusaddress = faker.location.streetAddress();
+
     await storage.createCustomer({
-      name: faker.person.fullName(),
-      email: faker.internet.email(),
-      phone: faker.phone.number(),
-      address: faker.location.streetAddress()
+      name: cusname,
+      email: cusemail,
+      phone: cusphone,
+      address: cusaddress
     });
   }
 

@@ -399,7 +399,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  router.post("/auth/login", async (req: AuthRequest, res) => {
+  router.post("/auth/login/admin", async (req: AuthRequest, res) => {
+    try {
+      const { username, password } = req.body;
+      if (!username || !password) {
+        return res.status(400).json({ 
+          success: false,
+          message: "Username and password are required" 
+        });
+      }
+      
+      const user = await storage.getUserByUsername(username);
+      if (!user || user.password !== password || user.role !== 'admin') {
+        return res.status(401).json({ 
+          success: false,
+          message: "Invalid username or password or insufficient permissions" 
+        });
+      }
+      
+      // Store user ID in session
+      req.session.userId = user.id;
+      
+      // Don't return the password
+      const { password: _, ...userWithoutPassword } = user;
+      res.json({ 
+        success: true,
+        data: userWithoutPassword,
+        message: "Login successful"
+      });
+    } catch (error) {
+      res.status(500).json({ 
+        success: false,
+        message: "Login failed" 
+      });
+    }
+  });
+
+  router.post("/auth/login/customer", async (req: AuthRequest, res) => {
     try {
       const { username, password } = req.body;
       if (!username || !password) {

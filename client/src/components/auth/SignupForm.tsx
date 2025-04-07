@@ -46,7 +46,7 @@ export default function SignupForm() {
       const response = await apiRequest({ 
         endpoint: '/auth/signup', 
         method: 'POST', 
-        data: { ...signupData, role: 'user' }
+        data: { ...signupData, role: 'admin' }
       });
       
       if (response.success) {

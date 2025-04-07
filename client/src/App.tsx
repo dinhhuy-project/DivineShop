@@ -17,6 +17,7 @@ import { AuthProvider } from "@/hooks/use-auth";
 import { CartProvider } from "@/hooks/use-cart";
 import { useEffect } from "react";
 import { useLocation } from "wouter";
+import { useAuth } from "@/hooks/use-auth";
 
 // Import shop pages
 import HomePage from "@/pages/shop/HomePage";
@@ -31,6 +32,7 @@ import SignupPage from "@/pages/shop/SignupPage";
 
 function Router() {
   const [location] = useLocation();
+  const { user, isAuthenticated, logout } = useAuth();
 
   useEffect(() => {
     const routeTitles: { [key: string]: string } = {
@@ -54,7 +56,14 @@ function Router() {
     };
 
     document.title = routeTitles[location] || "DivineShop";
-  }, [location]);
+
+    // Auto-logout if non-admin user accesses admin routes
+    if (isAuthenticated) {
+      if (location.includes("admin") && (!user || user.role !== "admin")) {
+        logout();
+      }
+    }
+  }, [location, user, logout]);
 
   return (
     <Switch>

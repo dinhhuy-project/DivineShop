@@ -6,7 +6,7 @@ interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (username: string, password: string) => Promise<{ success: boolean; message?: string }>;
+  login: (username: string, password: string, role: string) => Promise<{ success: boolean; message?: string; role?: string }>;
   logout: () => void;
 }
 
@@ -38,27 +38,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     checkAuth();
   }, []);
 
-  const login = async (username: string, password: string) => {
+  const login = async (username: string, password: string, role: string) => {
     try {
       const response = await apiRequest({ 
-        endpoint: '/auth/login', 
+        endpoint: `/auth/login/${role}`, 
         method: 'POST', 
         data: { username, password } 
       });
       
       if (response.success && response.data) {
         setUser(response.data);
-        return { success: true };
+        return { success: true, role: response.data.role };
       }
       
       return { 
         success: false, 
-        message: response.message || 'Invalid username or password'
+        message: response.message || 'Invalid username or password or insufficient permissions'
       };
     } catch (error) {
       return { 
         success: false, 
-        message: 'An error occurred during login'
+        message: 'Invalid username or password or insufficient permissions'
       };
     }
   };

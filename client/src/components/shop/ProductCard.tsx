@@ -35,7 +35,7 @@ export default function ProductCard({ product }: ProductCardProps) {
 
   return (
     <Link href={`/shop/product/${product.id}`}>
-      <a className="group block">
+      <div className="group block">
         <div className="bg-white rounded-lg shadow-md overflow-hidden transition-all duration-200 hover:shadow-lg h-full flex flex-col">
             <div className="h-48 bg-gray-100 flex items-center justify-center p-4">
             {product.image ? (
@@ -70,7 +70,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             </div>
           </div>
         </div>
-      </a>
+      </div>
     </Link>
   );
 }

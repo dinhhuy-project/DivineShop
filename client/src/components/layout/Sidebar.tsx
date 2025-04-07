@@ -5,6 +5,7 @@ import {
   PackageIcon, ChevronLeft, ChevronRight 
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useAuth } from '@/hooks/use-auth';
 
 interface SidebarProps {
   isCollapsed: boolean;
@@ -21,6 +22,8 @@ export default function Sidebar({
   isOpen,
   closeMobileSidebar
 }: SidebarProps) {
+  const { user, isAuthenticated, logout } = useAuth();
+
   const [location] = useLocation();
   
   const navItems = [
@@ -91,8 +94,8 @@ export default function Sidebar({
             </Avatar>
             {!isCollapsed && (
               <div className="ml-3">
-                <p className="text-sm font-medium text-gray-900">Alex Johnson</p>
-                <p className="text-xs text-gray-500">Administrator</p>
+                <p className="text-sm font-medium text-gray-900">{user?.name}</p>
+                <p className="text-xs text-gray-500">{user?.role}</p>
               </div>
             )}
           </div>

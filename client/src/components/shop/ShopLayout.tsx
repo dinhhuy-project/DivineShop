@@ -44,7 +44,7 @@ export default function ShopLayout({ children }: ShopLayoutProps) {
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center">
             <Link href="/shop">
-              <a className="text-2xl font-bold text-primary">DivineShop</a>
+              <span className="text-2xl font-bold text-primary">DivineShop</span>
             </Link>
           </div>
 
@@ -80,16 +80,16 @@ export default function ShopLayout({ children }: ShopLayoutProps) {
           {/* Desktop navigation */}
           <nav className="hidden md:flex items-center space-x-8">
             <Link href="/shop">
-              <a className="text-gray-700 hover:text-primary transition-colors">Home</a>
+              <span className="text-gray-700 hover:text-primary transition-colors">Home</span>
             </Link>
             <Link href="/shop/products/game">
-              <a className="text-gray-700 hover:text-primary transition-colors">Games</a>
+              <span className="text-gray-700 hover:text-primary transition-colors">Games</span>
             </Link>
             <Link href="/shop/products/software">
-              <a className="text-gray-700 hover:text-primary transition-colors">Software</a>
+              <span className="text-gray-700 hover:text-primary transition-colors">Software</span>
             </Link>
             <Link href="/shop/products/utility">
-              <a className="text-gray-700 hover:text-primary transition-colors">Utilities</a>
+              <span className="text-gray-700 hover:text-primary transition-colors">Utilities</span>
             </Link>
 
             <Sheet>
@@ -124,9 +124,7 @@ export default function ShopLayout({ children }: ShopLayoutProps) {
                     {user?.username}
                   </div>
                   <Link href="/shop/orders">
-                    <a className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                      My Orders
-                    </a>
+                    <span className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">My Orders</span>
                   </Link>
                   <button
                     onClick={() => logout()}
@@ -138,7 +136,7 @@ export default function ShopLayout({ children }: ShopLayoutProps) {
               </div>
             ) : (
               <Link href="/shop/login">
-                <a className="text-gray-700 hover:text-primary transition-colors">Sign In</a>
+                <span className="text-gray-700 hover:text-primary transition-colors">Sign In</span>
               </Link>
             )}
           </nav>
@@ -149,31 +147,31 @@ export default function ShopLayout({ children }: ShopLayoutProps) {
           <div className="md:hidden bg-white border-t border-gray-200">
             <div className="container mx-auto px-4 py-3 space-y-1">
               <Link href="/shop">
-                <a className="block py-2 text-gray-700 hover:text-primary transition-colors">
+                <span className="block py-2 text-gray-700 hover:text-primary transition-colors">
                   Home
-                </a>
+                </span>
               </Link>
               <Link href="/shop/products/game">
-                <a className="block py-2 text-gray-700 hover:text-primary transition-colors">
+                <span className="block py-2 text-gray-700 hover:text-primary transition-colors">
                   Games
-                </a>
+                </span>
               </Link>
               <Link href="/shop/products/software">
-                <a className="block py-2 text-gray-700 hover:text-primary transition-colors">
+                <span className="block py-2 text-gray-700 hover:text-primary transition-colors">
                   Software
-                </a>
+                </span>
               </Link>
               <Link href="/shop/products/utility">
-                <a className="block py-2 text-gray-700 hover:text-primary transition-colors">
+                <span className="block py-2 text-gray-700 hover:text-primary transition-colors">
                   Utilities
-                </a>
+                </span>
               </Link>
               {isAuthenticated ? (
                 <>
                   <Link href="/shop/orders">
-                    <a className="block py-2 text-gray-700 hover:text-primary transition-colors">
+                    <span className="block py-2 text-gray-700 hover:text-primary transition-colors">
                       My Orders
-                    </a>
+                    </span>
                   </Link>
                   <button
                     onClick={() => logout()}
@@ -184,9 +182,9 @@ export default function ShopLayout({ children }: ShopLayoutProps) {
                 </>
               ) : (
                 <Link href="/shop/login">
-                  <a className="block py-2 text-gray-700 hover:text-primary transition-colors">
+                  <span className="block py-2 text-gray-700 hover:text-primary transition-colors">
                     Sign In
-                  </a>
+                  </span>
                 </Link>
               )}
             </div>
@@ -214,22 +212,22 @@ export default function ShopLayout({ children }: ShopLayoutProps) {
               <ul className="space-y-2">
                 <li>
                   <Link href="/shop">
-                    <a className="text-gray-300 hover:text-white transition-colors">Home</a>
+                    <span className="text-gray-300 hover:text-white transition-colors">Home</span>
                   </Link>
                 </li>
                 <li>
                   <Link href="/shop/products/game">
-                    <a className="text-gray-300 hover:text-white transition-colors">Games</a>
+                    <span className="text-gray-300 hover:text-white transition-colors">Games</span>
                   </Link>
                 </li>
                 <li>
                   <Link href="/shop/products/software">
-                    <a className="text-gray-300 hover:text-white transition-colors">Software</a>
+                    <span className="text-gray-300 hover:text-white transition-colors">Software</span>
                   </Link>
                 </li>
                 <li>
                   <Link href="/shop/products/utility">
-                    <a className="text-gray-300 hover:text-white transition-colors">Utilities</a>
+                    <span className="text-gray-300 hover:text-white transition-colors">Utilities</span>
                   </Link>
                 </li>
               </ul>

@@ -78,7 +78,7 @@ app.use((req, res, next) => {
     server.listen({
       port: PORT,
       path: HOST,
-      reusePort: true,
+      reusePort: false,
     }, () => {
         log(`serving on http://localhost:${PORT}/`);
       });
